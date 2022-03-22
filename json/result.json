@@ -1,0 +1,17 @@
+[
+    {
+        "_id": "Joao Algusto",
+        "total": 9.46,
+        "desconto": false
+    },
+    {
+        "_id": "Marina Santos",
+        "total": 32.85,
+        "desconto": true
+    },
+    {
+        "_id": "Cleber Almeida",
+        "total": 34.980000000000004,
+        "desconto": true
+    }
+]

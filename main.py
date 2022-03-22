@@ -1,24 +1,43 @@
 from db.database import Database
 from writeJson.WriteAJson import writeAJson
+from dataset.produto_database import dataset as produtos
+from dataset.carro_dataset import dataset as carro
+from dataset.pessoa_dataset import dataset as pessoa
 
-db = Database(database="pokedex", collection="pokemons")
+compras = Database(database="s202aggre", collection="produtos", dataset=produtos)
+carro = Database(database="s202aggre", collection="carro", dataset=carro)
+pessoas = Database(database="s202aggre", collection="pessoas", dataset=pessoa)
 
-#pokemons com duas evolucoes
-pokemon2evo = db.executeQuery({"next_evolution":{"$size" : 2}})
-writeAJson(pokemon2evo, "Pokemons-com-2-evolucoes")
+compras.resetDatabase()
+carro.resetDatabase()
+pessoas.resetDatabase()
 
-#pokemons que nao aparecem em ovos
-pokemonNotInEgg = db.executeQuery({"egg": "Not in Eggs"})
-writeAJson(pokemonNotInEgg, "Pokemons-que-nao-aparecem-em-ovos")
 
-#pokemons que aparecem em ovos
-pokemonInEgg = db.executeQuery({"egg": {"$ne": "Not in Eggs"}})
-writeAJson(pokemonInEgg, "Pokemons-que-aparecem-em-ovos")
+result = compras.collection.aggregate([
+    {"$lookup":
+        {
+            "from": "pessoas",
+            "localField": "cliente_id",
+            "foreignField": "_id",
+            "as": "dono"
+        }
+     },
+    {"$group":{
+        "_id": "$dono.nome",
+        "total": {"$sum": "$total"}
+    }},
+    {"$sort": {"total": 1}},
+    {"$unwind": '$_id'},
+    {"$project": {
+        "nome": 1,
+        "total": 1,
+        "desconto": {
+            "$cond": {"if": {"$gte": ["$total", 10]}, "then": True, "else": False}
+        }
+    }
+    }
 
-#pokemons com unico tipo
-pokemonUnicoTipo = db.executeQuery({"type": {"$size": 1}})
-writeAJson(pokemonUnicoTipo, "Pokemons-unico-tipo")
 
-#pokemon com candy count >= 50
-pokemonCandyCount = db.executeQuery({"candy_count": {"$gte": 50}})
-writeAJson(pokemonCandyCount, "Pokemon-candy-gte50")
+])
+
+writeAJson(result, "result")
