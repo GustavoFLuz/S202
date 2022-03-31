@@ -1,24 +1,15 @@
+from unicodedata import name
 from db.database import Database
 from writeJson.WriteAJson import writeAJson
 
-db = Database(database="pokedex", collection="pokemons")
+db = Database("s202json", "livros")
+db.resetDatabase();
 
-#pokemons com duas evolucoes
-pokemon2evo = db.executeQuery({"next_evolution":{"$size" : 2}})
-writeAJson(pokemon2evo, "Pokemons-com-2-evolucoes")
+db.create("Clean Code", "Robert C. Martin", 2008, 31.0)
+db.create("Harry Potter and the Philosopher's Stone", "J. K. Rowling", 1997, 31.0)
+db.create("1984", "George Orwell", 1949, 19.9)
+writeAJson(db.read(), "livros")
 
-#pokemons que nao aparecem em ovos
-pokemonNotInEgg = db.executeQuery({"egg": "Not in Eggs"})
-writeAJson(pokemonNotInEgg, "Pokemons-que-nao-aparecem-em-ovos")
+db.update("Clean Code", 33.0)
 
-#pokemons que aparecem em ovos
-pokemonInEgg = db.executeQuery({"egg": {"$ne": "Not in Eggs"}})
-writeAJson(pokemonInEgg, "Pokemons-que-aparecem-em-ovos")
-
-#pokemons com unico tipo
-pokemonUnicoTipo = db.executeQuery({"type": {"$size": 1}})
-writeAJson(pokemonUnicoTipo, "Pokemons-unico-tipo")
-
-#pokemon com candy count >= 50
-pokemonCandyCount = db.executeQuery({"candy_count": {"$gte": 50}})
-writeAJson(pokemonCandyCount, "Pokemon-candy-gte50")
+db.delete("1984")
